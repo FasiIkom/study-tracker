@@ -98,6 +98,8 @@
 
 # Bagan Aplikasi Django
 
+![Screenshot 2024-02-13 175909](https://github.com/FasiIkom/study-tracker/assets/158117087/627dbd25-7467-45df-be4c-302a208995e7)
+
 # Pertanyaan
 ### Mengapa Kita Menggunakan _virtual environment_? Apakah Bisa Membuat Aplikasi Tanpa _virtual environment_?
 
