@@ -1,4 +1,5 @@
 # Penjelasan step-by-step Pembuatan Aplikasi study-tracker
+## Membuat Proyek Django Baru
 # Bagan Aplikasi Django
 
 # Pertanyaan
@@ -17,9 +18,9 @@ Ketiganya merupakan pola desain yang umum digunakan dalam pengembangan perangkat
    Terdiri dari 3 unsur :
    - _model_ : Bagian yang berfungsi untuk menyiapkan, mengatur, memanipulasi, dan mengelola data, logika, serta batasan aplikasi lainnya yang ada di database.
    - _view_ : Bagian yang bertugas untuk menampilkan informasi dalam bentuk _Graphical User Interface_ (GUI).
-   - _template_ :
+   - _template_ : Bagian yang menentukan bagian _user interface_.
 3. MVVM (_model-view-viewmodel_)
    Terdiri dari 3 unsur :
    - _model_ : Bagian yang berfungsi untuk menyiapkan, mengatur, memanipulasi, dan mengelola data, logika, serta batasan aplikasi lainnya yang ada di database.
    - _view_ : Bagian yang bertugas untuk menampilkan informasi dalam bentuk _Graphical User Interface_ (GUI).
-   - _viewmodel_ :
+   - _viewmodel_ : Bagian yang berinteraksi langsung dengan _model_ dan menyajikan data untuk _view_.
