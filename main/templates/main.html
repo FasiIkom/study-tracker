@@ -1,12 +1,36 @@
+{% extends 'base.html' %} {% block content %}
 <h1>Study Tracker Page</h1>
 
 <h5>Name:</h5>
 <p>{{ name }}</p>
 <h5>Class:</h5>
 <p>{{ class }}</p>
-<h5>Subject:</h5>
-<p>{{ subject }}</p>
-<h5>Start study:</h5>
-<p>{{ start_date }}<p>
-<h5>Progress(%):</h5>
-<p>{{ progress }}</p>
+<h5>Attendee's Number:</h5>
+<p>{{ number }}</p>
+<table>
+  <tr>
+    <th>Subject</th>
+    <th>Start Study</th>
+    <th>Progress (%)</th>
+    <th>Catatan</th>
+    <th>Date Added</th>
+  </tr>
+
+  {% comment %} Berikut cara memperlihatkan data produk di bawah baris ini
+  {%endcomment %} {% for progres in progresses %}
+  <tr>
+    <td>{{progres.subject}}</td>
+    <td>{{progres.start_Study}}</td>
+    <td>{{progres.progress}}</td>
+    <td>{{progres.catatan}}</td>
+    <td>{{progres.date_added}}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+<br />
+
+<a href="{% url 'main:create_progress' %}">
+  <button>Add New Progress</button>
+</a>
+{% endblock content %}
