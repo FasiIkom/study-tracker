@@ -244,6 +244,11 @@
    path('xml/<int:id>/', show_xml_by_id, name='show_xml_by_id'),
    path('json/<int:id>/', show_json_by_id, name='show_json_by_id'),
    ```
+#### Tampilan Masing-Masing Fungsi pada Aplikasi Postman
+![2024-02-20](https://github.com/FasiIkom/study-tracker/assets/158117087/89a5698a-99b4-4cf6-ac8a-5a9eb602028a)
+![Screenshot (31)](https://github.com/FasiIkom/study-tracker/assets/158117087/b9caa621-a278-4126-817c-9e0e502769a6)
+![Screenshot (32)](https://github.com/FasiIkom/study-tracker/assets/158117087/15939858-e451-45dd-9240-036e64dec5c2)
+![Screenshot (33)](https://github.com/FasiIkom/study-tracker/assets/158117087/ce5a2b9a-0caf-41a7-987e-3513e6d105e7)
 
 # Bagan Aplikasi Django
 
