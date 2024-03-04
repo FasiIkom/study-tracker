@@ -1,40 +1,60 @@
 {% extends 'base.html' %} {% block content %}
-<h1>Study Tracker Page</h1>
+<div class="container">
+  <h1 class="main-title">Study Tracker Page</h1>
+  <h5 class="subtitle">Name:</h5>
+  <p class="subtitle">{{ name }}</p>
+  <h5 class="subtitle">Class:</h5>
+  <p class="subtitle">{{ class }}</p>
+  <h5 class="subtitle">Attendee's Number:</h5>
+  <p class="subtitle">{{ number }}</p>
 
-<h5>Name:</h5>
-<p>{{ name }}</p>
-<h5>Class:</h5>
-<p>{{ class }}</p>
-<h5>Attendee's Number:</h5>
-<p>{{ number }}</p>
-<table>
-  <tr>
-    <th>Subject</th>
-    <th>Start Study</th>
-    <th>Progress (%)</th>
-    <th>Catatan</th>
-    <th>Date Added</th>
-  </tr>
-
-  {% comment %} Berikut cara memperlihatkan data produk di bawah baris ini
-  {%endcomment %} {% for progres in progresses %}
-  <tr>
-    <td>{{progres.subject}}</td>
-    <td>{{progres.start_Study}}</td>
-    <td>{{progres.progress}}</td>
-    <td>{{progres.catatan}}</td>
-    <td>{{progres.date_added}}</td>
-  </tr>
-  {% endfor %}
-</table>
-
-<br />
-
-<a href="{% url 'main:create_progress' %}">
-  <button>Add New Progress</button>
-</a>
-<a href="{% url 'main:logout' %}">
-  <button>Logout</button>
-</a>
-<h5>Sesi terakhir login: {{ last_login }}</h5>
+  <div class="row">
+    <a href="{% url 'main:create_progress' %}">
+      <button type="button" class="btn btn-success" style="margin-left: 1vw; margin-bottom: 3vh;">
+        <i class="fas fa-plus"></i> Add New Progress
+      </button>
+    </a>
+    {% if progresses %}
+      {% for progres in progresses %}
+      <div class="col-md-4">
+          <div class="card-body", style="background-color:#9AD0C2; color: #265073;">
+            <h3 class="card-title">{{progres.subject}}</h3>
+            <p class="card-text">Start study : {{progres.start_Study}}</p>
+            <p class="card-text">Progress (%) : {{progres.progress}}</p>
+            <p class="card-text">Start study : {{progres.start_Study}}</p>
+            <p class="card-text">Catatan</p>
+            <div class = "catatan">{{progres.catatan}}</div>
+            <a href="{% url 'main:edit_progress' progres.pk %}" style="text-decoration: none; padding-left: 0;">
+                <button type="button" class="btn btn-info" style = "color: white;">
+                  <i class="fas fa-pencil-alt"></i> 
+                  Edit Progress
+                </button>
+            </a>
+            <a href="{% url 'main:delete_progress' progres.pk %}">
+                <button type="button" class="btn btn-warning">
+                  <i class="fas fa-trash-alt"></i>
+                  Delete Progress
+                </button>
+            </a>
+            <p class="card-text">Date added : {{progres.date_added}}</p>
+          </div>
+      </div>
+      {% endfor %}
+    {% else %}
+    <div class="col-md-12 text-center" id="no-progress" style="margin-bottom: 16vh; margin-top: 16vh;">
+      <p>No progress available.</p>
+    </div>
+    {% endif %}
+  </div>
+  <br />
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <h5 class="subtitle">Sesi terakhir login: {{ last_login }}</h5>
+    <a href="{% url 'main:logout' %}">
+      <button type="button" class="btn btn-danger" style="margin-right: 1vw;">
+        <i class="fas fa-sign-out-alt"></i>
+        Logout
+      </button>
+    </a>
+  </div>
+</div>
 {% endblock content %}

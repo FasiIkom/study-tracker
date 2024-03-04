@@ -131,12 +131,12 @@
    Masih di berkas yang sama, update fungsi show_main menjadi seperti berikut ini.
    ```
    def show_main(request):
-    books = Book.objects.all()
+    progresses = Progress.objects.all()
 
     context = {
         'name': 'Pak Bepe',
         'class': 'PBP A',
-        'books': books
+        'progresses': progresses
     }
 
     return render(request, "main.html", context)
@@ -386,7 +386,7 @@
 
    {% endblock content %}
    ```
-4. Buat tombol logout dengan cara tambahkan teks berikut di berkas `main.html` pada direktori `templates` setelah bagian `add new book`.
+4. Buat tombol logout dengan cara tambahkan teks berikut di berkas `main.html` pada direktori `templates` setelah bagian `add new progress`.
    ```
    <a href="{% url 'main:logout' %}">
       <button>Logout</button>
@@ -422,9 +422,9 @@
        form = ProgressForm(request.POST or None)
 
        if form.is_valid() and request.method == "POST":
-           book = form.save(commit=False)
-           book.user = request.user
-           book.save()
+           progress = form.save(commit=False)
+           progress.user = request.user
+           progress.save()
            return redirect('main:show_main')
        context = {'form': form}
        return render(request, "create_progress.html", context)
@@ -473,6 +473,39 @@
    ```
    <h5>Sesi terakhir login: {{ last_login }}</h5>
    ```
+## Tugas 5
+### Melakukan kustomisasi pada halaman login, register, dan main
+Untuk melakukan kusotmisasi, kita dapat menambahkan beberapa _style_ pada bagian-bagian yang ingin dikustomisasi. Seperti pada `study-tracker` ini, saya sudah mengkustomisasi daftar item menjadi menggunakan _card_, mengkustomisasi tombol, mengatur posisi teks, dan mengatur warna latar belakang _website_.
+### Menambahkan Fitur _Update_ dan _Delete_ untuk Masing-Masing _Item_
+1. Di berkas `views.py` pada folder `main`, tambahkan fungsi `delete` dan `update`.
+   ```
+   def delete_progress(request, id):
+      progress = Progress.objects.get(pk = id)
+      progress.delete()
+      return HttpResponseRedirect(reverse('main:show_main'))
+   ```
+   ```
+   def edit_progress(request, id):
+    progress = Progress.objects.get(pk = id)
+    form = ProgressForm(request.POST or None, instance=progress)
+
+    if form.is_valid() and request.method == "POST":
+        form.save()
+        return HttpResponseRedirect(reverse('main:show_main'))
+
+    context = {'form': form}
+    return render(request, "edit_book.html", context)
+   ```
+2. Di folder yang sama, buka berkas `urls.py`, lalu import fungsi delete dan edit.
+   ```
+   from main.views import delete_progress, edit_progress 
+   ```
+   Masih di berkas yang sama, tambahkan `path` berikut pada `urlpatterns`
+   ```
+   path('edit-progress/<int:id>', edit_progress, name='edit_progress'),
+   path('delete/<int:id>', delete_progress, name='delete_progress'),
+   ```
+
 #### Tampilan Masing-Masing Fungsi pada Aplikasi Postman
 ![2024-02-20](https://github.com/FasiIkom/study-tracker/assets/158117087/89a5698a-99b4-4cf6-ac8a-5a9eb602028a)
 ![Screenshot (31)](https://github.com/FasiIkom/study-tracker/assets/158117087/b9caa621-a278-4126-817c-9e0e502769a6)
@@ -485,7 +518,6 @@
 
 # Pertanyaan
 ### Mengapa Kita Menggunakan _virtual environment_? Apakah Bisa Membuat Aplikasi Tanpa _virtual environment_?
-
 - _virtual environment_ berfungsi untuk mengisolasi dependesi dan paket yang diperlukan untuk setiap proyek secara terpisah, sehingga dapat menghindari kemungkinan terjadinya konflik dependensi antar proyek.
 -  Walaupun tanpa _virtual environment_, aplikasi tetap masih bisa berjalan. Hal ini dikarenakan _virtual environment_ bukanlah syarat utama suatu aplikasi bisa berjalan, melainkan hanya alat yang dapat digunakan untuk mengembangkan aplikasi, terutama untuk mencegah terjadinya konflik dependensi antar proyek.
 ### Apa Itu MVC, MVT, dan MVVM? Apa perbedaan dari ketiganya?
@@ -527,3 +559,15 @@ Autentikasi adalah proses untuk memverifikasi siapa pengguna yang sedang mengaks
 Cookies adalah file yang disimpan oleh server web di komputer pengguna saat mereka mengunjungi sebuah situs web. Jadi, ketika pengguna kembali mengunjungi situs tersebut, proses loading akan menjadi lebih cepat. Django mengelola cookies pengguna dengan cara menerima ID pengguna dari klien, lalu menyimpannya di server.
 ### Apakah penggunaan cookies aman secara default dalam pengembangan web, atau apakah ada risiko potensial yang harus diwaspadai?
 Umumnya, penggunaan cookies aman karena cookies hanyalah sebuah data, bukan kode program, sehingga _hacker_ tidak dapat memasukkan kode program ke dalam cookies. Akan tetapi, tetap ada risiko yang harus diwaspadai, seperti diambilnya data cookies pengguna oleh orang lain.
+### Jelaskan manfaat dari setiap element selector dan kapan waktu yang tepat untuk menggunakannya
+Elemen selektor adalah CSS yang digunakan untuk mengubah _style_ dari semua elemen dengan tag HTML yang sama. Berguna ketika ingin mengubah semua elemen dengan tag yang sama secara konsisten pada suatu halaman.
+### Jelaskan HTML5 Tag yang kamu ketahui.
+- <header> : Digunakan untuk membuat header dari halaman web, biasanya berisi judul
+- <nav> : Digunakan untuk membuat bar navigasi dari halaman web, biasanya berisi menu yang mengarahkan ke bagian-bagian web.
+- <article> : Digunakan untuk membuat artikel.
+- <section> : Digunakan untuk membagi web menjadi beberapa bagian.
+- <footer> : Digunakan untuk membuat footer dari halaman web, biasanya berisi hak cipta atau link ke konten.
+### Jelaskan perbedaan antara margin dan padding.
+Keduanya sama-sama memberikan ruangan kosong di sekitar konten, perbedaannya ruangan pada _padding_ dapat diisi dengan konten lain, sedangkan _margin_ tidak.
+### Jelaskan perbedaan antara framework CSS Tailwind dan Bootstrap. Kapan sebaiknya kita menggunakan Bootstrap daripada Tailwind, dan sebaliknya?
+Bootstrap lebih mudah digunakan karena menggunakan gaya dan komponen yang sudah didefinisikan, sedangan tailwind, pengguna masih harus mengatur tampilan HTML mereka. Karena itu, tailwind lebih fleksibel untuk digunakan.

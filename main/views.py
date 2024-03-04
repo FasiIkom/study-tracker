@@ -81,3 +81,17 @@ def show_xml_by_id(request, id):
 def show_json_by_id(request, id):
     data = Progress.objects.filter(pk=id)
     return HttpResponse(serializers.serialize("json", data), content_type="application/json")
+
+def edit_progress(request, id):
+    progress = Progress.objects.get(pk = id)
+    form = ProgressForm(request.POST or None, instance=progress)
+    if form.is_valid() and request.method == "POST":
+        form.save()
+        return HttpResponseRedirect(reverse('main:show_main'))
+    context = {'form': form}
+    return render(request, "edit_progress.html", context)
+
+def delete_progress(request, id):
+    progress = Progress.objects.get(pk = id)
+    progress.delete()
+    return HttpResponseRedirect(reverse('main:show_main'))
