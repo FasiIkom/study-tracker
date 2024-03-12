@@ -494,7 +494,7 @@ Untuk melakukan kusotmisasi, kita dapat menambahkan beberapa _style_ pada bagian
         return HttpResponseRedirect(reverse('main:show_main'))
 
     context = {'form': form}
-    return render(request, "edit_book.html", context)
+    return render(request, "edit_progress.html", context)
    ```
 2. Di folder yang sama, buka berkas `urls.py`, lalu import fungsi delete dan edit.
    ```
@@ -505,6 +505,140 @@ Untuk melakukan kusotmisasi, kita dapat menambahkan beberapa _style_ pada bagian
    path('edit-progress/<int:id>', edit_progress, name='edit_progress'),
    path('delete/<int:id>', delete_progress, name='delete_progress'),
    ```
+## Tugas 6
+### Mengubah kode cards data item agar dapat mendukung AJAX GET dan melakukan pengambilan task menggunakan AJAX GET
+Pada file `main.html`, hapus card yang ada di bagian body. Lalu, tambahkan _script_ berikut untuk melakukan refresh buku secara _asyncronous_.
+   ```
+   <script>
+   async function getProgresses() {
+         return fetch("{% url 'main:show_json' %}").then((res) => res.json())
+   }
+   async function refreshProgresses() {
+      document.getElementById("progress_table").innerHTML = ""
+      const progress = await getProgresses()
+      let htmlString = '<div class="row">'
+      if (progress.length > 0) {
+         progress.forEach((item) => {
+         htmlString += `<div class="col-md-4">
+               <div class="card-body" style="background-color:#9AD0C2; color: #265073;">
+               <h3 class="card-title">${item.fields.subject}</h3>
+               <p class="card-text">Start study : ${item.fields.start_Study}</p>
+               <p class="card-text">Progress (%) : ${item.fields.progress}</p>
+               <p class="card-text">Catatan</p>
+               <div class = "catatan">${item.fields.catatan}</div>
+               
+               <a href="/edit-progress/${item.pk}" style="text-decoration: none; padding-left: 0; margin-bottom: 1vh">
+                  <button type="button" class="btn btn-info" style = "color: white; display: inline-block;">
+                     <i class="fas fa-pencil-alt"></i> 
+                     Edit Progress
+                  </button>
+               </a>
+               <a href = "/delete/${item.pk}" style="text-decoration: none; padding-left: 0;">
+                  <button type="button" class="btn btn-warning" style = "display: inline-block;">
+                  <i class="fas fa-trash-alt"></i> Delete Progress
+                  </button>
+               </a>
+               <div style="margin-top: 2vh; padding-bottom: 1vh;">
+                  <p class="card-text">Date added : ${item.fields.date_added}</p>
+               </div>
+               </div>
+         </div>`
+         })
+      } else {
+         htmlString = `<div class="col-md-12 text-center" id="no-progress" style="margin-bottom: 16vh; margin-top: 16vh;">
+         <p>No progress available.</p>
+         </div>`
+      }
+      htmlString += '</div>'
+      document.getElementById("progress_table").innerHTML = htmlString
+   }
+
+   refreshProgresses()
+   ```
+   Tambahkan juga `<div id="progress_table"></div>` sebagai target untuk menampilkan progress tersebut.
+### Membuat Fitur add progress by AJAX
+1. Pada berkas `views.py`, tambahkan import berikut
+
+   `from django.views.decorators.csrf import csrf_exempt`
+
+   Tambahkan juga fungsi berikut untuk menambahkan buku dengan AJAX.
+   ```
+   @csrf_exempt
+   def add_progress_ajax(request):
+      if request.method == 'POST':
+         subject = request.POST.get("subject")
+         start_Study = request.POST.get("start_Study")
+         progress = request.POST.get("progress")
+         catatan = request.POST.get("catatan")
+         user = request.user
+
+         new_progress = Progress(subject=subject, start_Study=start_Study, progress=progress, catatan=catatan, user=user)
+         new_progress.save()
+
+         return HttpResponse(b"CREATED", status=201)
+
+      return HttpResponseNotFound()
+   ```
+2. Lakukan routing dengan mengimpor fungsi tersebut di `urls.py`, lalu tambahkan path di `urlpatterns`.
+3. Di berkas `main.html`, tambahkan script berikut.
+   ```
+   function addProgress() {
+      fetch("{% url 'main:add_progress_ajax' %}", {
+          method: "POST",
+          body: new FormData(document.querySelector('#form'))
+      }).then(refreshProgresses)
+
+      document.getElementById("form").reset()
+      return false
+   }
+      document.getElementById("button_add").onclick = addProgress
+   ```
+4. Tambahkan tombol untuk membuka form add book by AJAX.
+   ```
+   <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" style="margin-left: 1vw; margin-bottom: 3vh;">
+        Add Progress by AJAX
+   </button>
+   ```
+5. Tambahkan _form_ add progress by AJAX berikut.
+   ```
+   <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+            <div class="modal-content">
+               <div class="modal-header">
+                  <h1 class="modal-title fs-5" id="exampleModalLabel">Add New Progress</h1>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+               </div>
+               <div class="modal-body">
+                  <form id="form" onsubmit="return false;">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                           <label for="subject" class="col-form-label">Subject:</label>
+                           <input type="text" class="form-control" id="subject" name="subject"></input>
+                        </div>
+                        <div class="mb-3">
+                           <label for="start_Study" class="col-form-label">Start Study:</label>
+                           <input type="text" class="form-control" id="start_Study" name="start_Study"></input>
+                        </div>
+                        <div class="mb-3">
+                           <label for="progress" class="col-form-label">Progress (%):</label>
+                           <input type="number" class="form-control" id="progress" name="progress"></input>
+                        </div>
+                        <div class="mb-3">
+                           <label for="catatan" class="col-form-label">Catatan:</label>
+                           <textarea class="form-control" id="catatan" name="catatan"></textarea>
+                        </div>
+                  </form>
+               </div>
+               <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  <button type="button" class="btn btn-primary" id="button_add" data-bs-dismiss="modal">Add Progress</button>
+               </div>
+            </div>
+      </div>
+   </div>
+   ```
+   Dengan form ini, ketika tombol `Add Progress` pada form diklik, script pada nomor 3 akan dijalankan, sehingga akan menambahkan progress ke card dan melakukan refresh halaman.
+
 
 #### Tampilan Masing-Masing Fungsi pada Aplikasi Postman
 ![2024-02-20](https://github.com/FasiIkom/study-tracker/assets/158117087/89a5698a-99b4-4cf6-ac8a-5a9eb602028a)
@@ -561,13 +695,21 @@ Cookies adalah file yang disimpan oleh server web di komputer pengguna saat mere
 Umumnya, penggunaan cookies aman karena cookies hanyalah sebuah data, bukan kode program, sehingga _hacker_ tidak dapat memasukkan kode program ke dalam cookies. Akan tetapi, tetap ada risiko yang harus diwaspadai, seperti diambilnya data cookies pengguna oleh orang lain.
 ### Jelaskan manfaat dari setiap element selector dan kapan waktu yang tepat untuk menggunakannya
 Elemen selektor adalah CSS yang digunakan untuk mengubah _style_ dari semua elemen dengan tag HTML yang sama. Berguna ketika ingin mengubah semua elemen dengan tag yang sama secara konsisten pada suatu halaman.
-### Jelaskan HTML5 Tag yang kamu ketahui.
+### Jelaskan HTML5 Tag yang kamu ketahui
 - <header> : Digunakan untuk membuat header dari halaman web, biasanya berisi judul
 - <nav> : Digunakan untuk membuat bar navigasi dari halaman web, biasanya berisi menu yang mengarahkan ke bagian-bagian web.
 - <article> : Digunakan untuk membuat artikel.
 - <section> : Digunakan untuk membagi web menjadi beberapa bagian.
 - <footer> : Digunakan untuk membuat footer dari halaman web, biasanya berisi hak cipta atau link ke konten.
-### Jelaskan perbedaan antara margin dan padding.
+### Jelaskan perbedaan antara margin dan padding
 Keduanya sama-sama memberikan ruangan kosong di sekitar konten, perbedaannya ruangan pada _padding_ dapat diisi dengan konten lain, sedangkan _margin_ tidak.
 ### Jelaskan perbedaan antara framework CSS Tailwind dan Bootstrap. Kapan sebaiknya kita menggunakan Bootstrap daripada Tailwind, dan sebaliknya?
 Bootstrap lebih mudah digunakan karena menggunakan gaya dan komponen yang sudah didefinisikan, sedangan tailwind, pengguna masih harus mengatur tampilan HTML mereka. Karena itu, tailwind lebih fleksibel untuk digunakan.
+### Jelaskan perbedaan antara _asynchronous programming_ dengan _synchronous programming_
+_asynchronous programming_ adalah salah satu cara untuk memproses program secara efektif dan efisien. Dalam proses _asynchronous programming_, program dapat menjalankan suatu tugas sambil tetap menampilkan halaman lainnya, sehingga memungkinkan user untuk dapat tetap berinteraksi dengan halaman web saat server menjalankan _request_ dari user.
+### Dalam penerapan JavaScript dan AJAX, terdapat penerapan paradigma _event-driven programming_. Jelaskan maksud dari paradigma tersebut dan sebutkan salah satu contoh penerapannya pada tugas ini
+_event-driven programming_ adalah serangkaian perintah yang hanya akan dijalankan ketika terjadi suatu kondisi yang telah ditentukan. Kondisi tersebut dapat berupa klik mouse, gerakan mouse, mengetikkan suatu karakter di keyboard, dan masih banyak lagi. Pada program ini, salah satu contoh _event-driven programming_ adalah pada bagian _button_, yang mana akan menjalankan perintah seperti _add new progress_ ketika tombol tersebut ditekan.
+### Jelaskan penerapan _asynchronous programming_ pada AJAX
+ AJAX memungkinkan halaman web untuk memperbarui data secara asinkronus dengan mengirimkan data ke _server_ di balik layar dengan menggunakan XML. Hal itu memungkinkan kita dapat memperbarui sebagian elemen data pada halaman tanpa harus me-reload halaman secara keseluruhan.
+### Pada PBP kali ini, penerapan AJAX dilakukan dengan menggunakan Fetch API daripada _library_ jQuery. Bandingkanlah kedua teknologi tersebut dan tuliskan pendapat kamu teknologi manakah yang lebih baik untuk digunakan
+Fetch API merupakan bawaan dari JavaScript, sedangkan jQuery merupakan sebuah _library_. Dibandingkan jQuery, Fetch API cenderung lebih modern dan lebih efisien karena tidak harus mengimpor semua fungsi melainkan hanya mengambil yang akan digunakan saja. Sedangkan, jQuery memiliki dukungan yang lebih baik kepada _browser_ lawas. Menurut pendapat saya, Fetch API cenderung lebih baik untuk digunakan karena lebih fleksibel. Meskipun begitu, pemilihan antara penggunaan Fetch API atau jQuery tetap harus mempertimbangkan hal-hal lain, seperti adanya fitur jQuery yang tidak tersedia di Fetch API (berlaku juga sebaliknya), dan hal-hal lainnya.

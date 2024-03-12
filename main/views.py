@@ -1,12 +1,13 @@
 import datetime
 from django.urls import reverse
 from django.shortcuts import render, redirect
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
 from django.core import serializers
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
 from main.forms import ProgressForm
 from main.models import Progress
 
@@ -38,9 +39,9 @@ def create_progress(request):
     form = ProgressForm(request.POST or None)
 
     if form.is_valid() and request.method == "POST":
-        book = form.save(commit=False)
-        book.user = request.user
-        book.save()
+        progress = form.save(commit=False)
+        progress.user = request.user
+        progress.save()
         return redirect('main:show_main')
     context = {'form': form}
     return render(request, "create_progress.html", context)
@@ -95,3 +96,19 @@ def delete_progress(request, id):
     progress = Progress.objects.get(pk = id)
     progress.delete()
     return HttpResponseRedirect(reverse('main:show_main'))
+
+@csrf_exempt
+def add_progress_ajax(request):
+    if request.method == 'POST':
+        subject = request.POST.get("subject")
+        start_Study = request.POST.get("start_Study")
+        progress = request.POST.get("progress")
+        catatan = request.POST.get("catatan")
+        user = request.user
+
+        new_progress = Progress(subject=subject, start_Study=start_Study, progress=progress, catatan=catatan, user=user)
+        new_progress.save()
+
+        return HttpResponse(b"CREATED", status=201)
+
+    return HttpResponseNotFound()

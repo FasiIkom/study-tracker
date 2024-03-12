@@ -1,5 +1,5 @@
 from django.urls import path
-from main.views import show_main, create_progress, show_xml, show_json, show_xml_by_id, show_json_by_id, register, login_user, logout_user, edit_progress, delete_progress
+from main.views import show_main, create_progress, show_xml, show_json, show_xml_by_id, show_json_by_id, register, login_user, logout_user, edit_progress, delete_progress, add_progress_ajax
 
 app_name = 'main'
 
@@ -15,4 +15,5 @@ urlpatterns = [
     path('logout/', logout_user, name='logout'),
     path('edit-progress/<int:id>', edit_progress, name='edit_progress'),
     path('delete/<int:id>', delete_progress, name='delete_progress'),
+    path('create-progress-ajax/', add_progress_ajax, name='add_progress_ajax'),
 ]
