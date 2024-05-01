@@ -1,5 +1,5 @@
 from django.urls import path
-from main.views import show_main, create_progress, show_xml, show_json, show_xml_by_id, show_json_by_id, register, login_user, logout_user, edit_progress, delete_progress, add_progress_ajax
+from main.views import show_main, create_progress, show_xml, show_json, show_xml_by_id, show_json_by_id, register, login_user, logout_user, edit_progress, delete_progress, add_progress_ajax, create_progress_flutter
 
 app_name = 'main'
 
@@ -16,4 +16,5 @@ urlpatterns = [
     path('edit-progress/<int:id>', edit_progress, name='edit_progress'),
     path('delete/<int:id>', delete_progress, name='delete_progress'),
     path('create-progress-ajax/', add_progress_ajax, name='add_progress_ajax'),
+    path('create-flutter/', create_progress_flutter, name='create_progress_flutter'),
 ]

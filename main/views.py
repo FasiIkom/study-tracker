@@ -1,7 +1,7 @@
 import datetime
 from django.urls import reverse
 from django.shortcuts import render, redirect
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound, JsonResponse
 from django.core import serializers
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
@@ -10,6 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from main.forms import ProgressForm
 from main.models import Progress
+import json
 
 @login_required(login_url='/login')
 def show_main(request):
@@ -112,3 +113,23 @@ def add_progress_ajax(request):
         return HttpResponse(b"CREATED", status=201)
 
     return HttpResponseNotFound()
+
+@csrf_exempt
+def create_progress_flutter(request):
+    if request.method == 'POST':
+
+        data = json.loads(request.body)
+
+        new_progress = Progress.objects.create(
+            user = request.user,
+            subject = data["subject"],
+            start_Study = data["startStudy"],
+            progress = int(data["progress"]),
+            catatan = data["catatan"]
+        )
+
+        new_progress.save()
+
+        return JsonResponse({"status": "success"}, status=200)
+    else:
+        return JsonResponse({"status": "error"}, status=401)
